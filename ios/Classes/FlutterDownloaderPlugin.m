@@ -47,7 +47,7 @@
 }
 
 @property(nonatomic, strong) dispatch_queue_t databaseQueue;
-
+@property(nonatomic,readonly)UIBackgroundTaskIdentifier backgroundTaskIdentifier;
 @end
 
 @implementation FlutterDownloaderPlugin
@@ -792,7 +792,16 @@ static BOOL initialized = NO;
     //TODO: setup background isolate in case the application is re-launched from background to handle download event
     return YES;
 }
-
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    NSLog(@"applicationDidEnterBackground called");
+    _backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        NSLog(@"Background Time:%f",[[UIApplication sharedApplication] backgroundTimeRemaining]);
+        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskIdentifier];
+        self->_backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    }];
+}
+ 
 - (void)applicationWillTerminate:(nonnull UIApplication *)application
 {
     NSLog(@"applicationWillTerminate:");
