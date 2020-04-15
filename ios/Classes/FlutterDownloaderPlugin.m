@@ -23,6 +23,7 @@
 #define KEY_OPEN_FILE_FROM_NOTIFICATION @"open_file_from_notification"
 #define KEY_QUERY @"query"
 #define KEY_TIME_CREATED @"time_created"
+#define KEY_JWT_TOKEN @"jwt_token"
 
 #define NULL_VALUE @"<null>"
 
@@ -509,6 +510,19 @@ static BOOL initialized = NO;
     result([NSNull null]);
 }
 
+-(void)setCookiesToSession:(NSString *)jwtToken{
+    NSDictionary * properties = @{
+        NSHTTPCookieDomain: @".dev.247software.com",
+        NSHTTPCookiePath: @"/",
+        NSHTTPCookieName: @"jwt_token",
+        NSHTTPCookieValue: jwtToken,
+        NSHTTPCookieSecure: @"true",
+        NSHTTPCookieExpires: @"Fri, 30 Dec 2019 07:07:23 GMT",
+    };
+    NSHTTPCookie * cookie = [NSHTTPCookie cookieWithProperties:properties];
+    [[self currentSession].configuration.HTTPCookieStorage setCookie:cookie];
+}
+
 - (void)enqueueMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSString *urlString = call.arguments[KEY_URL];
     NSString *savedDir = call.arguments[KEY_SAVED_DIR];
@@ -517,7 +531,10 @@ static BOOL initialized = NO;
     NSString *headers = call.arguments[KEY_HEADERS];
     NSNumber *showNotification = call.arguments[KEY_SHOW_NOTIFICATION];
     NSNumber *openFileFromNotification = call.arguments[KEY_OPEN_FILE_FROM_NOTIFICATION];
-
+    NSString *jwtToken = call.arguments[KEY_JWT_TOKEN];
+    if(jwtToken != NULL){
+        [self setCookiesToSession:jwtToken];
+    }
     NSURLSessionDownloadTask *task = [self downloadTaskWithURL:[NSURL URLWithString:urlString] fileName:fileName andSavedDir:savedDir andHeaders:headers];
 
     NSString *taskId = [self identifierForTask:task];
