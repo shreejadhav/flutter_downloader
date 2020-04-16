@@ -70,7 +70,8 @@ class FlutterDownloader {
       bool showNotification = true,
       bool openFileFromNotification = true,
       bool requiresStorageNotLow = true,
-      String jwtToken}) async {
+      String jwtToken,
+      String domain}) async {
     assert(_initialized, 'FlutterDownloader.initialize() must be called first');
     assert(Directory(savedDir).existsSync());
 
@@ -93,6 +94,7 @@ class FlutterDownloader {
         'open_file_from_notification': openFileFromNotification,
         'requires_storage_not_low': requiresStorageNotLow,
         'jwt_token': jwtToken,
+        'domain': domain,
       });
       print('Download task is enqueued with id($taskId)');
       return taskId;

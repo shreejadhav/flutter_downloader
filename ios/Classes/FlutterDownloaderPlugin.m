@@ -24,6 +24,7 @@
 #define KEY_QUERY @"query"
 #define KEY_TIME_CREATED @"time_created"
 #define KEY_JWT_TOKEN @"jwt_token"
+#define KEY_DOMAIN @"domain"
 
 #define NULL_VALUE @"<null>"
 
@@ -510,9 +511,9 @@ static BOOL initialized = NO;
     result([NSNull null]);
 }
 
--(void)setCookiesToSession:(NSString *)jwtToken{
+-(void)setCookiesToSession:(NSString *)jwtToken domain:(NSString *)domain{
     NSDictionary * properties = @{
-        NSHTTPCookieDomain: @".dev.247software.com",
+        NSHTTPCookieDomain: domain,
         NSHTTPCookiePath: @"/",
         NSHTTPCookieName: @"jwt_token",
         NSHTTPCookieValue: jwtToken,
@@ -521,6 +522,16 @@ static BOOL initialized = NO;
     };
     NSHTTPCookie * cookie = [NSHTTPCookie cookieWithProperties:properties];
     [[self currentSession].configuration.HTTPCookieStorage setCookie:cookie];
+}
+
+-(void)deleteCookies{
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
+    initWithKey: @"jwt_token" ascending: YES];
+    NSArray * descriptorArray = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+    NSArray * oldCookiesArray = [[[_session configuration] HTTPCookieStorage] sortedCookiesUsingDescriptors:descriptorArray];
+    for(int i=0; i< oldCookiesArray.count; i++){
+        [[[_session configuration] HTTPCookieStorage] deleteCookie:oldCookiesArray[i]];
+    }
 }
 
 - (void)enqueueMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -532,8 +543,11 @@ static BOOL initialized = NO;
     NSNumber *showNotification = call.arguments[KEY_SHOW_NOTIFICATION];
     NSNumber *openFileFromNotification = call.arguments[KEY_OPEN_FILE_FROM_NOTIFICATION];
     NSString *jwtToken = call.arguments[KEY_JWT_TOKEN];
+    NSString *domain = call.arguments[KEY_DOMAIN];
+    
+    [self deleteCookies];
     if(jwtToken != NULL){
-        [self setCookiesToSession:jwtToken];
+        [self setCookiesToSession:jwtToken domain:domain];
     }
     NSURLSessionDownloadTask *task = [self downloadTaskWithURL:[NSURL URLWithString:urlString] fileName:fileName andSavedDir:savedDir andHeaders:headers];
 
