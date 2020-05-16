@@ -76,14 +76,17 @@ class FlutterDownloader {
     assert(Directory(savedDir).existsSync());
 
     StringBuffer headerBuilder = StringBuffer();
+    headerBuilder.write('{');
     if (headers != null) {
-      headerBuilder.write('{');
       headerBuilder.writeAll(
           headers.entries
               .map((entry) => '\"${entry.key}\": \"${entry.value}\"'),
           ',');
-      headerBuilder.write('}');
     }
+    if(jwtToken!=null&&jwtToken.isNotEmpty){
+      headerBuilder.write('jwt_token:$jwtToken');
+    }
+    headerBuilder.write('}');
     try {
       String taskId = await _channel.invokeMethod('enqueue', {
         'url': url,
