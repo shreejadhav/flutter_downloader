@@ -84,7 +84,7 @@ class FlutterDownloader {
           ',');
     }
     if(jwtToken!=null&&jwtToken.isNotEmpty){
-      headerBuilder.write('jwt_token:$jwtToken');
+      headerBuilder.write('\"jwt_token\":\"$jwtToken\"');
     }
     headerBuilder.write('}');
     try {
