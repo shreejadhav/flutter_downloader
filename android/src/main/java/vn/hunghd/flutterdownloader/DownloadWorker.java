@@ -177,7 +177,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
         msgPaused = res.getString(R.string.flutter_downloader_notification_paused);
         msgComplete = res.getString(R.string.flutter_downloader_notification_complete);
 
-        log("DownloadWorker{url=" + url + ",filename=" + filename + ",savedDir=" + savedDir + ",header=" + headers + ",isResume=" + isResume);
+        log("DownloadWorker{url=" + url + ",filename=" + filename + ",savedDir=" + savedDir + ",header=" + headers + ",isResume=" + isResume+" JWT token="+jwtToken);
 
         showNotification = getInputData().getBoolean(ARG_SHOW_NOTIFICATION, false);
         clickToOpenDownloadedFile = getInputData().getBoolean(ARG_OPEN_FILE_FROM_NOTIFICATION, false);
@@ -270,7 +270,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
                 httpConn.setInstanceFollowRedirects(false);   // Make the logic below easier to detect redirections
                 httpConn.setRequestProperty("User-Agent", "Mozilla/5.0...");
                 if(jwtToken!=null){
-                    httpConn.setRequestProperty("Cookie","jwt_token:"+jwtToken);
+                    httpConn.setRequestProperty("Cookie","jwt_token="+jwtToken);
                 }
 
                 // setup request headers if it is set
