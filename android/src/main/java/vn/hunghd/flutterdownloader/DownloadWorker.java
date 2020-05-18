@@ -59,6 +59,7 @@ import io.flutter.view.FlutterRunArguments;
 public class DownloadWorker extends Worker implements MethodChannel.MethodCallHandler {
     public static final String ARG_URL = "url";
     public static final String ARG_FILE_NAME = "file_name";
+    public static final String ARG_JWT_TOKEN = "jwt_token";
     public static final String ARG_SAVED_DIR = "saved_file";
     public static final String ARG_HEADERS = "headers";
     public static final String ARG_IS_RESUME = "is_resume";
@@ -164,6 +165,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
         String filename = getInputData().getString(ARG_FILE_NAME);
         String savedDir = getInputData().getString(ARG_SAVED_DIR);
         String headers = getInputData().getString(ARG_HEADERS);
+        String jwtToken = getInputData().getString(ARG_JWT_TOKEN);
         boolean isResume = getInputData().getBoolean(ARG_IS_RESUME, false);
         debug = getInputData().getBoolean(ARG_DEBUG, false);
 
@@ -189,7 +191,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
         taskDao.updateTask(getId().toString(), DownloadStatus.RUNNING, 0);
 
         try {
-            downloadFile(context, url, savedDir, filename, headers, isResume);
+            downloadFile(context, url, savedDir, filename, headers, isResume,jwtToken);
             cleanUp();
             dbHelper = null;
             taskDao = null;
@@ -231,7 +233,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
         return downloadedBytes;
     }
 
-    private void downloadFile(Context context, String fileURL, String savedDir, String filename, String headers, boolean isResume) throws IOException {
+    private void downloadFile(Context context, String fileURL, String savedDir, String filename, String headers, boolean isResume, String jwtToken) throws IOException {
         String url = fileURL;
         URL resourceUrl, base, next;
         Map<String, Integer> visited;
@@ -267,6 +269,9 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
                 httpConn.setReadTimeout(15000);
                 httpConn.setInstanceFollowRedirects(false);   // Make the logic below easier to detect redirections
                 httpConn.setRequestProperty("User-Agent", "Mozilla/5.0...");
+                if(jwtToken!=null){
+                    httpConn.setRequestProperty("Cookie","jwt_token:"+jwtToken);
+                }
 
                 // setup request headers if it is set
                 setupHeaders(httpConn, headers);

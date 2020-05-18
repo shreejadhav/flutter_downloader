@@ -67,7 +67,7 @@ class FlutterDownloader {
       @required String savedDir,
       String fileName,
       Map<String, String> headers,
-      bool showNotification = true,
+      bool showNotification = false,
       bool openFileFromNotification = true,
       bool requiresStorageNotLow = true,
       String jwtToken,
@@ -83,9 +83,9 @@ class FlutterDownloader {
               .map((entry) => '\"${entry.key}\": \"${entry.value}\"'),
           ',');
     }
-    if(jwtToken!=null&&jwtToken.isNotEmpty){
-      headerBuilder.write('\"jwt_token\":\"$jwtToken\"');
-    }
+//    if(jwtToken!=null&&jwtToken.isNotEmpty){
+//      headerBuilder.write('\"jwt_token\":\"$jwtToken\"');
+//    }
     headerBuilder.write('}');
     try {
       String taskId = await _channel.invokeMethod('enqueue', {
