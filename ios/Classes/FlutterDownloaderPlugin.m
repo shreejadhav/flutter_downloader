@@ -981,6 +981,7 @@ static BOOL debug = YES;
             });
         }
     }else{
+        __typeof__(self) __weak weakSelf = self;
         [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_COMPLETE) andProgress:@100];
         dispatch_sync(databaseQueue, ^{
             [weakSelf updateTask:taskId status:STATUS_COMPLETE progress:100];
