@@ -930,21 +930,21 @@ static BOOL debug = YES;
                                         toURL:destinationURL
                                         error:&error];
 
-    __typeof__(self) __weak weakSelf = self;
-    if (success) {
-        [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_COMPLETE) andProgress:@100];
-        dispatch_sync(databaseQueue, ^{
-            [weakSelf updateTask:taskId status:STATUS_COMPLETE progress:100];
-        });
-    } else {
-        if (debug) {
-            NSLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
-        }
-        [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_FAILED) andProgress:@(-1)];
-        dispatch_sync(databaseQueue, ^{
-            [weakSelf updateTask:taskId status:STATUS_FAILED progress:-1];
-        });
-    }
+    // __typeof__(self) __weak weakSelf = self;
+    // if (success) {
+    //     [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_COMPLETE) andProgress:@100];
+    //     dispatch_sync(databaseQueue, ^{
+    //         [weakSelf updateTask:taskId status:STATUS_COMPLETE progress:100];
+    //     });
+    // } else {
+    //     if (debug) {
+    //         NSLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+    //     }
+    //     [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_FAILED) andProgress:@(-1)];
+    //     dispatch_sync(databaseQueue, ^{
+    //         [weakSelf updateTask:taskId status:STATUS_FAILED progress:-1];
+    //     });
+    // }
 }
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
@@ -958,11 +958,12 @@ static BOOL debug = YES;
         NSLog(@"HTTP status code: %ld", httpStatusCode);
     }
     bool isSuccess = (httpStatusCode >= 200 && httpStatusCode < 300);
+    NSString *taskId = [self identifierForTask:task ofSession:session];
     if (error != nil || !isSuccess) {
         if (debug) {
             NSLog(@"Download completed with error: %@", error != nil ? [error localizedDescription] : @(httpStatusCode));
         }
-        NSString *taskId = [self identifierForTask:task ofSession:session];
+        
         NSDictionary *taskInfo = [self loadTaskWithId:taskId];
         NSNumber *resumable = taskInfo[KEY_RESUMABLE];
         if (![resumable boolValue]) {
@@ -979,6 +980,11 @@ static BOOL debug = YES;
                 [weakSelf updateTask:taskId status:status progress:-1];
             });
         }
+    }else{
+        [self sendUpdateProgressForTaskId:taskId inStatus:@(STATUS_COMPLETE) andProgress:@100];
+        dispatch_sync(databaseQueue, ^{
+            [weakSelf updateTask:taskId status:STATUS_COMPLETE progress:100];
+        });
     }
 }
 
