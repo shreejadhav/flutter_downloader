@@ -70,8 +70,8 @@ class FlutterDownloader {
       bool showNotification = true,
       bool openFileFromNotification = true,
       bool requiresStorageNotLow = true,
-      String jwtToken,
-      String domain}) async {
+      String? jwtToken,
+      String? domain}) async {
     assert(_initialized, 'FlutterDownloader.initialize() must be called first');
     assert(Directory(savedDir).existsSync());
 
